@@ -1,12 +1,19 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import List from "./List";
+import axios from 'axios';
 
 export default function Form() {
-  const { register, handleSubmit, resetField } = useForm();
+  const { register, handleSubmit, reset } = useForm();
 
-  const onSubmit = (data) => {
-    console.log("data", data);
+  const onSubmit = async (data) => {
+    try {
+      const response = await axios.post('http://localhost:5050/api/transaction', data);
+      console.log("Data posted:", response.data);
+      reset();
+    } catch (error) {
+      console.error("Error posting data:", error);
+    }
   };
 
   return (
