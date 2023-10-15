@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useTransaction } from "./AppContext";
 
 export default function Labels() {
-  const [labels, setLabels] = useState([]);
+  const { transactions } = useTransaction();
 
   useEffect(() => {
-    // Fetch labels when the component mounts
     fetchLabels();
   }, []);
 
@@ -13,7 +13,6 @@ export default function Labels() {
       const response = await fetch("http://localhost:5050/api/labels");
       if (response.ok) {
         const data = await response.json();
-        setLabels(data);
         console.log("labels", data)
       } else {
         console.error("Failed to fetch labels");
@@ -23,13 +22,13 @@ export default function Labels() {
     }
   };
 
-  const totalAmount = labels.reduce((total, label) => total + (label.amount || 0), 0);
+  const totalAmount = transactions.reduce((total, label) => total + (label.amount || 0), 0);
 
   return (
     <div>
       <h2>Total Amount: {totalAmount}</h2>
       <div className="flex flex-col gap-2">
-        {labels.map((label, index) => (
+        {transactions.map((label, index) => (
           <LabelComponent key={index} data={label} totalAmount={totalAmount} />
         ))}
       </div>

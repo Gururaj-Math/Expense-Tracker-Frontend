@@ -1,26 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import "boxicons";
 import axios from "axios";
+import { useTransaction } from "./AppContext";
 
 export default function List() {
-  const [transactions, setTransactions] = useState([]);
+  const { transactions, deleteTransaction } = useTransaction();
 
-  useEffect(() => {
-    fetchTransactions();
-  }, []);
-
-  const fetchTransactions = async () => {
+  const handleDeleteTransaction = async (transactionId) => {
     try {
-      const response = await fetch("http://localhost:5050/api/transaction");
-      if (response.ok) {
-        const data = await response.json();
-        setTransactions(data);
-        console.log("data", data);
+      const response = await axios.delete(
+        `http://localhost:5050/api/transaction/${transactionId}`
+      );
+      if (response.status === 200) {
+        console.log("Transaction deleted successfully");
+        deleteTransaction(transactionId);
       } else {
-        console.error("Failed to fetch transactions");
+        console.error("Failed to delete transaction");
+        console.error(response.data);
       }
     } catch (error) {
-      console.error("Error fetching transactions:", error);
+      console.error("Error deleting transaction:", error);
     }
   };
 
@@ -32,36 +31,26 @@ export default function List() {
       ))}
     </div>
   );
-}
 
-const deleteTransaction = async (transactionId) => {
-  try {
-    const response = await axios.delete(
-      `http://localhost:5050/api/transaction/${transactionId}`
+  function Transactions({ transaction }) {
+    if (!transaction) return null;
+    return (
+      <div
+        className="item flex justify-center bg-gray-50 py-2 rounded-r"
+        style={{ borderRight: `8px solid ${transaction.color || "#e5e5e5"}` }}
+      >
+        <button
+          className="px-3"
+          onClick={() => handleDeleteTransaction(transaction._id)}
+        >
+          <box-icon
+            name="trash"
+            size="20px"
+            color={transaction.color || "#e5e5e5"}
+          />
+        </button>
+        <span className="w-full block">{transaction.name || ""}</span>
+      </div>
     );
-    if (response.status === 200) {
-      window.alert("Transaction deleted successfully");
-    } else {
-      console.error("Failed to delete transaction");
-      console.error(response.data); // Log the response data for debugging
-    }
-  } catch (error) {
-    console.error("Error deleting transaction:", error);
   }
-};
-
-
-function Transactions({ transaction }) {
-  if (!transaction) return null;
-  return (
-    <div
-      className="item flex justify-center bg-gray-50 py-2 rounded-r"
-      style={{ borderRight: `8px solid ${transaction.color || "#e5e5e5"}` }}
-    >
-       <button className="px-3" onClick={() => deleteTransaction(transaction._id)}>
-            <box-icon name="trash" size="20px" color={transaction.color || "#e5e5e5"} />
-          </button>
-      <span className="w-full block">{transaction.name || ""}</span>
-    </div>
-  );
 }

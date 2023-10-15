@@ -3,10 +3,12 @@ import { Chart, ArcElement } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 import Labels from "./Labels";
 import axios from "axios";
+import { useTransaction } from "./AppContext";
 
 Chart.register(ArcElement);
 
 const Graph = () => {
+  const { transactions } = useTransaction(); 
   const [labelsData, setLabelsData] = useState([]);
   const [percentage, setPercentage] = useState(0);
 
@@ -17,15 +19,15 @@ const Graph = () => {
   }, []);
 
   useEffect(() => {
-    const total = labelsData.reduce((acc, label) => acc + label.amount, 0);
+    const total = transactions.reduce((acc, transaction) => acc + transaction.amount, 0);
     setPercentage(total);
-  }, [labelsData]);
+  }, [transactions]);
 
   const dynamicConfig = {
     data: {
       datasets: [
         {
-          data: labelsData.map((label) => label.amount),
+          data: transactions.map((label) => label.amount),
           backgroundColor: labelsData.map((label) => label.color),
           hoverOffset: 4,
           borderRadius: 30,
